@@ -1,0 +1,77 @@
+#####################
+# LG_BotV2          #
+# Version 0.1       #
+# Créé : 03/10/2023 #
+# Par : Gabychouuu_ #
+# maj : 12/03/2024  #
+#####################
+
+import discord
+from discord.ext import commands
+import play
+import setup
+import registration
+import distribution
+from Database.databasehandler import DatabaseHandler
+from setup import variables_setup as st
+from registration import variables_registration as rg
+
+DatabaseHandler = DatabaseHandler("database.db")
+intents = discord.Intents.all()
+Bot = commands.Bot(command_prefix="!", description="Go pour les LGs", intents=intents)
+discord.AllowedMentions(everyone=True, users=True, roles=True, replied_user=True)
+version = "0.1"
+
+@Bot.event
+async def on_ready():
+    global version
+    log_channel = Bot.get_channel(1042913689491226757)
+    msg = discord.Embed(title=f"Démarrage", colour=discord.Colour(0x00FF00))
+    msg.add_field(name="vesrion :", value=f"{version}")
+    try:
+       synced = await Bot.tree.sync()
+       print(f"Synced {len(synced)} commands")
+    except Exception as e:
+        print(e)
+    await log_channel.send(embed=msg)
+
+@Bot.tree.command()
+async def set_game(interaction, number : int):
+    global Bot
+    bot = Bot
+    await setup.Setup(interaction, number, bot)
+
+@Bot.tree.command()
+async def start_inscriptions(interaction):
+    name = interaction.user
+    user_id = int(interaction.user.id)
+    await registration.Start_Inscriptions(interaction, name, user_id, DatabaseHandler)
+
+@Bot.tree.command()
+async def inscription(interaction):
+    user = interaction.user
+    user_id = user.id
+    name = str(user)
+    await registration.Inscription(interaction, name, user_id)
+
+@Bot.tree.command()
+async def distribution_roles(interaction):
+    await distribution.Distribution(interaction)
+
+@Bot.tree.command()
+async def me(interaction):
+    name = interaction.user
+    await distribution.me(interaction, name)
+
+@Bot.tree.command()
+async def liste_des_joueurs(interaction):
+    await play.number_player_list(interaction)
+
+@Bot.tree.command()
+async def start(interaction):
+    global Bot
+    bot = Bot
+    await play.start(interaction, bot)
+
+
+Bot.run("MTA0MjkxMjk4Njc3MzMyNzkyMw.GhkAnU.4mQRT_wRgA_Go0ygpETT7zdqHc4haXG1KgCNVY")
