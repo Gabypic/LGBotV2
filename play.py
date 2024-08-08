@@ -80,7 +80,7 @@ async def start(interaction, bot):
         Soso_kill = 0
         if ST.variables_setup.Sorciere and is_alive.Sorciere:
             msg = discord.Embed(title=f"La sorcière va pouvoir faire usage de ses potion !", colour=0xFF8700)
-            await interaction.followup.send(embed=msg, ephemeral = False)
+            await interaction.followup.send(embed=msg, ephemeral=False)
             Soso_kill = await SC.Sorciere(interaction, bot, Lg_kill)
             if Soso_kill != 0 and ST.variables_setup.nb_lg > 0:
                 kill = 2

@@ -18,6 +18,7 @@ async def Voyante(interaction, Bot):
     chosen_one = await Bot.wait_for('message')
     check = False
     check_max = False
+
     while not check and not check_max:
         chosen_one = await Bot.wait_for('message')
         print(chosen_one.content)
