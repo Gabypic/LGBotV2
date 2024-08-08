@@ -13,7 +13,6 @@ class voted_player:
 
 
 async def Cupidon(interaction, Bot):
-    classNotLoop.one_time_role.Cupidon_played = True
     allowed_player = DatabaseHandler.name_for_role(f"Cupidon {SP.Cupidon}")
     userid = int(DatabaseHandler.discordID_for_name(allowed_player))
     user = await Bot.fetch_user(userid)

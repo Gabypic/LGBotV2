@@ -58,7 +58,8 @@ async def start(interaction, bot):
     while not win_condition.Win_couple and not win_condition.Win_Village and not win_condition.Win_loups:
 
         if ST.variables_setup.Cupidon and is_alive.Cupidon:
-            if classNotLoop.one_time_role.Cupidon_played == False:
+            if not classNotLoop.one_time_role.Cupidon_played:
+                classNotLoop.one_time_role.Cupidon_played = True
                 msg = discord.Embed(title=f"Le cupidon joue !")
                 await interaction.followup.send(embed=msg, ephemeral=False)
                 await CP.Cupidon(interaction, bot)
@@ -96,11 +97,25 @@ async def start(interaction, bot):
         for i in range(kill):
             await do_kill(interaction, bot, killed[i], False)
 
-        if not is_alive.Cupidon:
-            msg = discord.Embed(title="Comme le chasseur est mort, il peut emporter quelqu'un dans la tombe", colour=0x95D72A)
-            await interaction.followup.send(embed=msg)
-            chase_kill = await CH.Chasseur(interaction, bot)
-            await do_kill(interaction, bot, chase_kill, True)
+        if not is_alive.Chasseur and ST.variables_setup.Chasseur:
+            if not classNotLoop.one_time_role.chasseur_played:
+                classNotLoop.one_time_role.chasseur_played = True
+                msg = discord.Embed(title="Comme le chasseur est mort, il peut emporter quelqu'un dans la tombe", colour=0x95D72A)
+                await interaction.followup.send(embed=msg)
+                chase_kill = await CH.Chasseur(interaction, bot)
+                await do_kill(interaction, bot, chase_kill, True)
+
+        await check_win_conditions(interaction)
+        if win_condition.Win_loups and win_condition.Win_Village:
+            msg = discord.Embed(title="Egalité, aucun camp n'a gagné la partie !", colour=0x0000FF)
+            await interaction.followup.send(embed=msg, ephemeral=False)
+            continue
+        if win_condition.Win_loups:
+            msg = discord.Embed(title="Les loups on gagné la partie", colour=0xFF0000)
+            await interaction.followup.send(embed=msg, ephemeral=False)
+        if win_condition.Win_Village:
+            msg = discord.Embed(title="Le village à gagné la partie", colour=0x00FF00)
+            await interaction.followup.send(embed=msg, ephemeral=False)
 
 
 async def do_kill(interaction, Bot, number, chase):
@@ -124,13 +139,15 @@ async def do_kill(interaction, Bot, number, chase):
             is_alive.Sorciere = False
         if value == f"Chasseur {SP.Chasseur}":
             is_alive.Chasseur = False
-        if value == SP.LG:
+        if value == f"Loup-Garou {SP.LG}":
             ST.variables_setup.nb_lg -= 1
-        if value == SP.Villageois:
+        if value == f"Villageois {SP.Villageois}":
+            print("enter villager -1")
             ST.variables_setup.nb_villageois -=1
 
 
 async def check_win_conditions(interaction):
+    print(ST.variables_setup.nb_villageois, ST.variables_setup.nb_lg, is_alive.Voyante, is_alive.Sorciere, is_alive.Chasseur, is_alive.Cupidon)
     if ST.variables_setup.nb_villageois == 0 and not is_alive.Voyante and not is_alive.Chasseur and not is_alive.Sorciere and not is_alive.Cupidon:
         win_condition.Win_loups = True
 
