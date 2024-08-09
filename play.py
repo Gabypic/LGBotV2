@@ -107,14 +107,17 @@ async def start(interaction, bot):
 
         await check_win_conditions(interaction)
         if win_condition.Win_loups and win_condition.Win_Village:
-            msg = discord.Embed(title="Egalité, aucun camp n'a gagné la partie !", colour=0x0000FF)
+            msg = discord.Embed(title="Fin de la partie !", colour=0x0000FF)
+            msg.add_field(name="Egalité", value="aucun camp n'a gagné la partie !")
             await interaction.followup.send(embed=msg, ephemeral=False)
             continue
         if win_condition.Win_loups:
-            msg = discord.Embed(title="Les loups on gagné la partie", colour=0xFF0000)
+            msg = discord.Embed(title="Fin de la partie !", colour=0xFF0000)
+            msg.add_field(name="Victoire des Loups !", value="Les Loups on remporté la partie !")
             await interaction.followup.send(embed=msg, ephemeral=False)
         if win_condition.Win_Village:
-            msg = discord.Embed(title="Le village à gagné la partie", colour=0x00FF00)
+            msg = discord.Embed(title="Fin de la partie !", colour=0x00FF00)
+            msg.add_field(name="Victoire du Village !", value="Le village a remporté la partie !")
             await interaction.followup.send(embed=msg, ephemeral=False)
 
 

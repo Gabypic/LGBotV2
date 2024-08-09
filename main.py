@@ -12,6 +12,7 @@ import play
 import setup
 import registration
 import distribution
+import reset
 from Database.databasehandler import DatabaseHandler
 from setup import variables_setup as st
 from registration import variables_registration as rg
@@ -39,6 +40,9 @@ async def on_ready():
 async def set_game(interaction, number : int):
     global Bot
     bot = Bot
+    msg = discord.Embed(title="Reset avant setup", colour=0x0000FF)
+    await interaction.response.send_message(embed=msg)
+    await reset.reset(interaction, True)
     await setup.Setup(interaction, number, bot)
 
 @Bot.tree.command()
@@ -73,5 +77,9 @@ async def start(interaction):
     bot = Bot
     await play.start(interaction, bot)
 
+
+@Bot.tree.command()
+async def reset_game_settings(interaction):
+    await reset.reset(interaction, False)
 
 Bot.run("MTA0MjkxMjk4Njc3MzMyNzkyMw.GhkAnU.4mQRT_wRgA_Go0ygpETT7zdqHc4haXG1KgCNVY")

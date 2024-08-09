@@ -106,7 +106,7 @@ async def Setup(interaction, number: int, Bot):
     variables_setup.Bot = Bot
     msg = discord.Embed(title=f"Le jeu sera configuré pour {number} joueurs ", colour=0x0000FF)
     msg.add_field(name="Validation", value=f"Appuyez sur le bouton ✅ pour valider ou ❌ pour annuler")
-    await interaction.response.send_message(embed=msg, ephemeral=False, view=vue_config)
+    await interaction.followup.send(embed=msg, ephemeral=False, view=vue_config)
 
 async def rolesChoice(interaction):
     global nombre_de_joueurs

@@ -130,3 +130,10 @@ class DatabaseHandler():
         cursor.execute(query, (0, name, ))
         cursor.close()
         self.connect.commit()
+
+    def reset(self):
+        cursor = self.connect.cursor()
+        query = f"DELETE FROM Roles;"
+        cursor.execute(query)
+        cursor.close()
+        self.connect.commit()

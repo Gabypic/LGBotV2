@@ -22,7 +22,6 @@ class gave_role:
     Chasseur = False
 
 class variables_distribution:
-    ahah = ()
     player_list = []
     did_distribution = False
 
