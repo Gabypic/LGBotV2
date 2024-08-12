@@ -10,6 +10,7 @@ import registration as RG
 
 DatabaseHandler = DatabaseHandler("database.db")
 
+
 async def reset(interaction, new_game : bool):
     msg = discord.Embed(title="Reset en cours", color=0xFF0000)
     if new_game:

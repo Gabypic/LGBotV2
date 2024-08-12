@@ -8,28 +8,21 @@ DatabaseHandler = DatabaseHandler("database.db")
 Bot = commands.Bot
 
 
-async def LGs(interaction, Bot):
+async def votes(interaction, Bot):
     users = []
-    Lg_list = DatabaseHandler.lg_list()
-    votes = []
 
-    for value in Lg_list:
+    for value in users:
         userid = int(DatabaseHandler.discordID_for_name(value))
         user = await Bot.fetch_user(userid)
         users.append(user)
-
-    for user in users:
-        msg = discord.Embed(title="La lune est au plus haut, il est temps pour vous de dévorer un villageois !", colour=0xFF0000)
-        msg.add_field(name="info", value="Vote pour une cible en envoyant son numéro.\n**/liste_des_joueurs**")
-        await user.send(embed=msg)
 
     votes = []
     voted_users = set()
 
     def check(message):
         return (
-            message.author.id in [user.id for user in users]
-            and isinstance(message.channel, discord.DMChannel)
+                message.author.id in [user.id for user in users]
+                and message.channel.id == interaction.channel.id
         )
 
     while len(voted_users) < len(users):

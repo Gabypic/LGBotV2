@@ -5,6 +5,7 @@ import roles.Voyante as VY
 import roles.Cupidon as CP
 import roles.LGs as LG
 import roles.Sorciere as SC
+import roles.Day_votes as DV
 from Database.databasehandler import DatabaseHandler
 from distribution import SP
 import setup as ST
@@ -105,20 +106,20 @@ async def start(interaction, bot):
                 chase_kill = await CH.Chasseur(interaction, bot)
                 await do_kill(interaction, bot, chase_kill, True)
 
+        msg = discord.Embed(title="Le jour se lève !", colour=0x00FF00)
+        await interaction.followup.send(embed=msg, ephemeral=False)
+
         await check_win_conditions(interaction)
-        if win_condition.Win_loups and win_condition.Win_Village:
-            msg = discord.Embed(title="Fin de la partie !", colour=0x0000FF)
-            msg.add_field(name="Egalité", value="aucun camp n'a gagné la partie !")
-            await interaction.followup.send(embed=msg, ephemeral=False)
-            continue
-        if win_condition.Win_loups:
-            msg = discord.Embed(title="Fin de la partie !", colour=0xFF0000)
-            msg.add_field(name="Victoire des Loups !", value="Les Loups on remporté la partie !")
-            await interaction.followup.send(embed=msg, ephemeral=False)
-        if win_condition.Win_Village:
-            msg = discord.Embed(title="Fin de la partie !", colour=0x00FF00)
-            msg.add_field(name="Victoire du Village !", value="Le village a remporté la partie !")
-            await interaction.followup.send(embed=msg, ephemeral=False)
+
+        msg = discord.Embed(title="Il est l'heure de passer aux votes !", colour=0x00FF00)
+        msg.add_field(name="Votez par le numéro du joueur", value="/liste_des_joueurs")
+        msg.add_field(name="Tout message comprenant autre chose qu'un numéro ne sera pas compté", value="Vous disposez de 3min pour voter !")
+        await interaction.followup.send(embed=msg, ephemeral=False)
+
+        voted = await DV.votes(interaction, bot)
+        await do_kill(interaction, bot, voted, False)
+
+        await check_win_conditions(interaction)
 
 
 async def do_kill(interaction, Bot, number, chase):
@@ -153,6 +154,17 @@ async def check_win_conditions(interaction):
     print(ST.variables_setup.nb_villageois, ST.variables_setup.nb_lg, is_alive.Voyante, is_alive.Sorciere, is_alive.Chasseur, is_alive.Cupidon)
     if ST.variables_setup.nb_villageois == 0 and not is_alive.Voyante and not is_alive.Chasseur and not is_alive.Sorciere and not is_alive.Cupidon:
         win_condition.Win_loups = True
+        msg = discord.Embed(title="Fin de la partie !", colour=0xFF0000)
+        msg.add_field(name="Victoire des Loups !", value="Les Loups on remporté la partie !")
+        await interaction.followup.send(embed=msg, ephemeral=False)
 
     if ST.variables_setup.nb_lg == 0:
         win_condition.Win_Village = True
+        msg = discord.Embed(title="Fin de la partie !", colour=0x00FF00)
+        msg.add_field(name="Victoire du Village !", value="Le village a remporté la partie !")
+        await interaction.followup.send(embed=msg, ephemeral=False)
+
+    if win_condition.Win_loups and win_condition.Win_Village:
+        msg = discord.Embed(title="Fin de la partie !", colour=0x0000FF)
+        msg.add_field(name="Egalité", value="aucun camp n'a gagné la partie !")
+        await interaction.followup.send(embed=msg, ephemeral=False)
