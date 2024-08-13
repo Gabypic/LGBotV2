@@ -38,18 +38,30 @@ async def on_ready():
 
 @Bot.tree.command()
 async def set_game(interaction, number : int):
-    global Bot
-    bot = Bot
-    msg = discord.Embed(title="Reset avant setup", colour=0x0000FF)
-    await interaction.response.send_message(embed=msg)
-    await reset.reset(interaction, True)
-    await setup.Setup(interaction, number, bot)
+    try:
+        global Bot
+        bot = Bot
+        msg = discord.Embed(title="Reset avant setup", colour=0x0000FF)
+        await interaction.response.send_message(embed=msg)
+        await reset.reset(interaction, True)
+        await setup.Setup(interaction, number, bot)
+    except Exception as e:
+        msg = discord.Embed(title="La préparation de la game a crash", colour=discord.Colour(0xFF0000))
+        msg.add_field(name="Erreur : ", value=str(e))
+        await interaction.followup.send(embed=msg)
+        print(f"crash report {e}")
 
 @Bot.tree.command()
 async def start_inscriptions(interaction):
-    name = interaction.user
-    user_id = int(interaction.user.id)
-    await registration.Start_Inscriptions(interaction, name, user_id, DatabaseHandler)
+    try:
+        name = interaction.user
+        user_id = int(interaction.user.id)
+        await registration.Start_Inscriptions(interaction, name, user_id, DatabaseHandler)
+    except Exception as e:
+        msg = discord.Embed(title="Le début des inscriptions a crash", colour=discord.Colour(0xFF0000))
+        msg.add_field(name="Erreur : ", value=str(e))
+        await interaction.followup.send(embed=msg)
+        print(f"crash report {e}")
 
 @Bot.tree.command()
 async def inscription(interaction):
@@ -60,7 +72,13 @@ async def inscription(interaction):
 
 @Bot.tree.command()
 async def distribution_roles(interaction):
-    await distribution.Distribution(interaction)
+    try:
+        await distribution.Distribution(interaction)
+    except Exception as e:
+        msg = discord.Embed(title="La distribution a crash", colour=discord.Colour(0xFF0000))
+        msg.add_field(name="Erreur : ", value=str(e))
+        await interaction.followup.send(embed=msg)
+        print(f"crash report {e}")
 
 @Bot.tree.command()
 async def me(interaction):
@@ -73,15 +91,15 @@ async def liste_des_joueurs(interaction):
 
 @Bot.tree.command()
 async def start(interaction):
-    #try :
+    try :
         global Bot
         bot = Bot
         await play.start(interaction, bot)
-    #except Exception as e:
-    #    msg = discord.Embed(title="La game à crash", colour=discord.Colour(0xFF0000))
-    #    msg.add_field(name="Erreur : ", value=str(e))
-    #    await interaction.followup.send(embed=msg)
-    #    print(f"crash report {e}")
+    except Exception as e:
+        msg = discord.Embed(title="La game à crash", colour=discord.Colour(0xFF0000))
+        msg.add_field(name="Erreur : ", value=str(e))
+        await interaction.followup.send(embed=msg)
+        print(f"crash report {e}")
 
 
 @Bot.tree.command()
