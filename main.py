@@ -1,9 +1,9 @@
 #####################
 # LG_BotV2          #
-# Version 0.1       #
+# Version Alpha 0.9 #
 # Créé : 03/10/2023 #
 # Par : Gabychouuu_ #
-# maj : 12/03/2024  #
+# maj : 13/08/2024  #
 #####################
 
 import discord
@@ -21,7 +21,7 @@ DatabaseHandler = DatabaseHandler("database.db")
 intents = discord.Intents.all()
 Bot = commands.Bot(command_prefix="!", description="Go pour les LGs", intents=intents)
 discord.AllowedMentions(everyone=True, users=True, roles=True, replied_user=True)
-version = "0.1"
+version = "Alpha 0.9"
 
 @Bot.event
 async def on_ready():

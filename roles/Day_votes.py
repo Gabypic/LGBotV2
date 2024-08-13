@@ -46,7 +46,7 @@ async def votes(interaction, Bot):
                 await voted_message.author.send(embed=msg)
 
     async def time_reminder():
-        total_time = 30
+        total_time = 180
         while total_time > 0:
             if total_time == 180 or total_time == 120 or total_time == 60:
                 await interaction.channel.send(f"Il te reste {total_time // 60} minute(s) pour voter.")
