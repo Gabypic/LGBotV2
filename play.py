@@ -117,6 +117,10 @@ async def start(interaction, bot):
         await interaction.followup.send(embed=msg, ephemeral=False)
 
         voted = await DV.votes(interaction, bot)
+        print(f"{type(voted)}, {voted}, pk tu crash fdp")
+
+        msg = discord.Embed(title="Les votes sont faits", colour=0x00FF00)
+        msg.add_field(name="Le joueur qui va être éliminé est :", value=f"{DatabaseHandler.name_for_number(voted)}")
         await do_kill(interaction, bot, voted, False)
 
         await check_win_conditions(interaction)
@@ -124,7 +128,6 @@ async def start(interaction, bot):
 
 async def do_kill(interaction, Bot, number, chase):
     infos = DatabaseHandler.death_info(number)
-    channel = Bot.get_channel(1042913689491226757)
     if chase:
         kill_msg = "à été tué par le chasseur"
     else:
@@ -132,7 +135,7 @@ async def do_kill(interaction, Bot, number, chase):
     for key, value in infos.items():
         msg = discord.Embed(title=f"{key} {kill_msg}.", colour=0x000000)
         msg.add_field(name=f"Il était", value=f"{value}")
-        await channel.send(embed=msg)
+        await interaction.followup.send(embed=msg, ephemeral=False)
         DatabaseHandler.kill_by_name(key)
 
         if value == f"Cupidon {SP.Cupidon}":
