@@ -16,6 +16,7 @@ import reset
 from Database.databasehandler import DatabaseHandler
 from setup import variables_setup as st
 from registration import variables_registration as rg
+import traceback
 
 DatabaseHandler = DatabaseHandler("database.db")
 intents = discord.Intents.all()
@@ -91,15 +92,19 @@ async def liste_des_joueurs(interaction):
 
 @Bot.tree.command()
 async def start(interaction):
-    #try :
+    try:
         global Bot
         bot = Bot
         await play.start(interaction, bot)
-    #except Exception as e:
-    #    msg = discord.Embed(title="La game à crash", colour=discord.Colour(0xFF0000))
-    #    msg.add_field(name="Erreur : ", value=str(e))
-    #    await interaction.followup.send(embed=msg)
-    #    print(f"crash report {e}")
+    except Exception as e:
+        error_traceback = traceback.format_exc()
+
+        msg = discord.Embed(title="La game a crash", colour=discord.Colour(0xFF0000))
+        msg.add_field(name="Erreur : ", value=str(e))
+        msg.add_field(name="Détails : ", value=error_traceback, inline=False)
+        await interaction.followup.send(embed=msg)
+
+        print(f"Crash report:\n{error_traceback}")
 
 
 @Bot.tree.command()
