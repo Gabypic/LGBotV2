@@ -96,7 +96,7 @@ async def start(interaction, bot):
             kill = 1
         killed.append(Lg_kill)
         for i in range(kill):
-            await do_kill(interaction, bot, killed[i], False)
+            await do_kill(interaction, bot, killed[i], False, False)
 
         if not is_alive.Chasseur and ST.variables_setup.Chasseur:
             if not classNotLoop.one_time_role.chasseur_played:
@@ -104,7 +104,7 @@ async def start(interaction, bot):
                 msg = discord.Embed(title="Comme le chasseur est mort, il peut emporter quelqu'un dans la tombe", colour=0x95D72A)
                 await interaction.followup.send(embed=msg)
                 chase_kill = await CH.Chasseur(interaction, bot)
-                await do_kill(interaction, bot, chase_kill, True)
+                await do_kill(interaction, bot, chase_kill, True, False)
 
         msg = discord.Embed(title="Le jour se lève !", colour=0x00FF00)
         await interaction.followup.send(embed=msg, ephemeral=False)
@@ -123,15 +123,17 @@ async def start(interaction, bot):
 
         msg = discord.Embed(title="Les votes sont faits", colour=0x00FF00)
         msg.add_field(name="Le joueur qui va être éliminé est :", value=f"{DatabaseHandler.name_for_number(voted)}")
-        await do_kill(interaction, bot, voted, False)
+        await do_kill(interaction, bot, voted, False, True)
 
         await check_win_conditions(interaction)
 
 
-async def do_kill(interaction, Bot, number, chase):
+async def do_kill(interaction, Bot, number, chase, day):
     infos = DatabaseHandler.death_info(number)
     if chase:
         kill_msg = "à été tué par le chasseur"
+    elif day:
+        kill_msg = "est le joueur le plus voté, il a donc été pendu"
     else:
         kill_msg = "est mort cette nuit"
     for key, value in infos.items():

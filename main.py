@@ -91,15 +91,15 @@ async def liste_des_joueurs(interaction):
 
 @Bot.tree.command()
 async def start(interaction):
-    try :
+    #try :
         global Bot
         bot = Bot
         await play.start(interaction, bot)
-    except Exception as e:
-        msg = discord.Embed(title="La game à crash", colour=discord.Colour(0xFF0000))
-        msg.add_field(name="Erreur : ", value=str(e))
-        await interaction.followup.send(embed=msg)
-        print(f"crash report {e}")
+    #except Exception as e:
+    #    msg = discord.Embed(title="La game à crash", colour=discord.Colour(0xFF0000))
+    #    msg.add_field(name="Erreur : ", value=str(e))
+    #    await interaction.followup.send(embed=msg)
+    #    print(f"crash report {e}")
 
 
 @Bot.tree.command()

@@ -122,6 +122,7 @@ class DatabaseHandler():
         cursor.execute(query, (number, ))
         result = cursor.fetchall()
         cursor.close()
+        self.connect.commit()
         return dict(result)
 
     def kill_by_name(self, name : str):
@@ -137,3 +138,11 @@ class DatabaseHandler():
         cursor.execute(query)
         cursor.close()
         self.connect.commit()
+
+    def is_alive(self, discordid : int) -> str:
+        cursor = self.connect.cursor()
+        query = f"SELECT vie FROM Roles WHERE discordId = ?;"
+        cursor.execute(query, (discordid,))
+        result = cursor.fetchall()
+        cursor.close()
+        return dict(result[0])['vie']

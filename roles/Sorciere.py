@@ -95,3 +95,5 @@ async def Sorciere(interaction, Bot, died: int):
     if potion_use <=0 or potion_use > 3:
         msg = discord.Embed(title="Tu ne peux choisir qu'entre 1, 2 et 3 !", colour=0xFF0000)
         await user.send(embed=msg)
+        await Sorciere(interaction, Bot, died)
+        
