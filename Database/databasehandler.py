@@ -69,7 +69,7 @@ class DatabaseHandler():
         cursor.execute(query)
         result = cursor.fetchall()
         cursor.close()
-        player_list = [row['name'] for row in result]
+        player_list = [row["name"] for row in result]
         return player_list
 
     def number_list(self):
@@ -105,7 +105,17 @@ class DatabaseHandler():
         cursor.execute(query, (number, ))
         result = cursor.fetchall()
         cursor.close()
-        return dict(result[0])['name']
+        print(f"result: {result}")
+        return dict(result[0])["name"]
+
+    def number_for_name(self, name : str) -> str:
+        cursor = self.connect.cursor()
+        query = f"SELECT Numero FROM Roles WHERE name = ?;"
+        cursor.execute(query, (name, ))
+        result = cursor.fetchall()
+        cursor.close()
+        print(f"result: {result}")
+        return dict(result[0])["Numero"]
 
     def no_number(self, number: str) -> bool:
         cursor = self.connect.cursor()

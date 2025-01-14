@@ -1,8 +1,9 @@
+import asyncio
 import discord
 from discord.ext import commands
+from discord.ui import View, Select
 from Database.databasehandler import DatabaseHandler
 from collections import Counter
-from checks import check_slash_wait
 
 DatabaseHandler = DatabaseHandler("database.db")
 Bot = commands.Bot
@@ -11,39 +12,49 @@ Bot = commands.Bot
 async def LGs(interaction, Bot):
     users = []
     Lg_list = DatabaseHandler.lg_list()
+    player_list = DatabaseHandler.player_list()
     votes = []
+    has_vote = {"count": 0}
+    all_voted = asyncio.Event()
 
     for value in Lg_list:
         userid = int(DatabaseHandler.discordID_for_name(value))
         user = await Bot.fetch_user(userid)
         users.append(user)
 
+    total_users = len(users)
+
     for user in users:
-        msg = discord.Embed(title="La lune est au plus haut, il est temps pour vous de dévorer un villageois !", colour=0xFF0000)
-        msg.add_field(name="info", value="Vote pour une cible en envoyant son numéro.\n**/liste_des_joueurs**")
-        await user.send(embed=msg)
-
-    votes = []
-    voted_users = set()
-
-    def check(message):
-        return (
-            message.author.id in [user.id for user in users]
-            and isinstance(message.channel, discord.DMChannel)
+        msg = discord.Embed(
+            title="La lune est au plus haut, il est temps pour vous de dévorer un villageois !",
+            colour=0xFF0000
         )
+        msg.add_field(
+            name="info",
+            value="Vote pour une cible en la choisissant dans la liste déroulante."
+        )
+        options = [discord.SelectOption(label=value) for value in player_list]
+        select = Select(placeholder="Choisis un joueur !", options=options)
 
-    while len(voted_users) < len(users):
-        voted_message = await Bot.wait_for('message', check=check)
+        async def select_callback(interaction):
+            has_vote["count"] += 1
+            confirmation_msg = discord.Embed(
+                title=f"Tu as voté pour {select.values[0]}:",
+                colour=0x00FF00
+            )
+            print(select.values)
+            votes.append(DatabaseHandler.number_for_name(select.values[0]))
+            await interaction.response.send_message(embed=confirmation_msg)
+            if has_vote["count"] >= total_users:
+                all_voted.set()
 
-        if voted_message.author.id not in voted_users:
-            voted_users.add(voted_message.author.id)
-            votes.append(voted_message.content)
-            confirmation_msg = discord.Embed(title=f"Tu as voté pour {DatabaseHandler.name_for_number(voted_message.content)} !", colour=0x00FF00)
-            await voted_message.author.send(embed=confirmation_msg)
+        select.callback = select_callback
 
-        else:
-            msg = discord.Embed(title="Tu ne peux pas voter plusieurs fois pas nuits", colour=0xFF0000)
-            await voted_message.author.send(embed=msg)
+        view = View()
+        view.add_item(select)
+        await user.send(embed=msg, view=view)
+
+    await all_voted.wait()
 
     counter = Counter(votes)
     killed = counter.most_common(1)[0][0]

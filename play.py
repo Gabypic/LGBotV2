@@ -95,7 +95,9 @@ async def start(interaction, bot):
         if Lg_kill == Soso_kill:
             kill = 1
         killed.append(Lg_kill)
+        print(f"kill {kill}")
         for i in range(kill):
+            print(f"do_kill/ {killed[i]}")
             await do_kill(interaction, bot, killed[i], False, False)
 
         if not is_alive.Chasseur and ST.variables_setup.Chasseur:
