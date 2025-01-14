@@ -12,7 +12,7 @@ Bot = commands.Bot
 async def LGs(interaction, Bot):
     users = []
     Lg_list = DatabaseHandler.lg_list()
-    player_list = DatabaseHandler.player_list()
+    player_list = DatabaseHandler.alive_player_list()
     votes = []
     has_vote = {"count": 0}
     all_voted = asyncio.Event()

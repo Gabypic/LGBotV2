@@ -10,7 +10,7 @@ Bot = commands.Bot
 
 
 async def Voyante(interaction, Bot):
-    player_list = DatabaseHandler.player_list()
+    player_list = DatabaseHandler.alive_player_list()
     allowed_player = DatabaseHandler.name_for_role(f"Voyante {SP.Voyante}")
     userid = int(DatabaseHandler.discordID_for_name(allowed_player))
     user = await Bot.fetch_user(userid)
@@ -34,7 +34,7 @@ async def Voyante(interaction, Bot):
             colour=0x00FF00
         )
         print(f"Selected value: {select.values[0]}")
-        await interaction.response.send_message(embed=confirmation_msg, ephemeral=True)
+        await interaction.response.send_message(embed=confirmation_msg)
         chosen_one.append(select.values[0])
         chose.set()
 

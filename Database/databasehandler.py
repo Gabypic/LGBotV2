@@ -72,6 +72,15 @@ class DatabaseHandler():
         player_list = [row["name"] for row in result]
         return player_list
 
+    def alive_player_list(self):
+        cursor = self.connect.cursor()
+        query = f"SELECT name FROM Roles WHERE vie = 1;"
+        cursor.execute(query)
+        result = cursor.fetchall()
+        cursor.close()
+        alive_players = [row["name"] for row in result]
+        return alive_players
+
     def number_list(self):
         cursor = self.connect.cursor()
         query = f"SELECT name, Numero, vie FROM Roles;"
