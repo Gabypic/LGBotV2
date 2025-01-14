@@ -48,7 +48,7 @@ async def on_ready():
         msg.add_field(name="error", value=f"Error while command sync")
     await log_channel.send(embed=msg)
 
-@Bot.tree.command()
+@Bot.tree.command(name="set_game", description="Permet de choisir les rôles et le nombre de joueurs pour la partie")
 async def set_game(interaction, number : int):
     try:
         global Bot
@@ -63,7 +63,7 @@ async def set_game(interaction, number : int):
         await interaction.followup.send(embed=msg)
         print(f"crash report {e}")
 
-@Bot.tree.command()
+@Bot.tree.command(name="start_inscriptions", description="Lance les inscriptions pour la partie")
 async def start_inscriptions(interaction):
     try:
         name = interaction.user
@@ -75,14 +75,14 @@ async def start_inscriptions(interaction):
         await interaction.followup.send(embed=msg)
         print(f"crash report {e}")
 
-@Bot.tree.command()
+@Bot.tree.command(name="inscription", description="Permet de s'inscrire à la prochaine partie ")
 async def inscription(interaction):
     user = interaction.user
     user_id = user.id
     name = str(user)
     await registration.Inscription(interaction, name, user_id)
 
-@Bot.tree.command()
+@Bot.tree.command(name="distribution_roles", description="Distribue les rôles aux joueurs inscrits")
 async def distribution_roles(interaction):
     try:
         await distribution.Distribution(interaction)
@@ -92,16 +92,16 @@ async def distribution_roles(interaction):
         await interaction.followup.send(embed=msg)
         print(f"crash report {e}")
 
-@Bot.tree.command()
+@Bot.tree.command(name="me", description="Affiche le rôle du joueur")
 async def me(interaction):
     name = interaction.user
     await distribution.me(interaction, name)
 
-@Bot.tree.command()
+@Bot.tree.command(name="liste_des_joueurs", description="Affiche la liste des joueurs de la partie")
 async def liste_des_joueurs(interaction):
     await play.number_player_list(interaction)
 
-@Bot.tree.command()
+@Bot.tree.command(name="start", description="Lance la partie")
 async def start(interaction):
     try:
         global Bot
@@ -117,26 +117,23 @@ async def start(interaction):
 
         print(f"Crash report:\n{error_traceback}")
 
-@Bot.tree.command()
+@Bot.tree.command(name="reset_game_settings", description="remet tout à zéro de manière propre")
 async def reset_game_settings(interaction):
     await reset.reset(interaction, False)
 
 
-@Bot.tree.command(name="restart", description="Redémarre le bot")
+@Bot.tree.command(name="restart", description="Redémarre le bot (admin only)")
 async def restart(interaction: discord.Interaction):
     try:
         if interaction.user.id != ALLOWED_USER_ID:
             await interaction.response.send_message("Vous n'avez pas la permission d'utiliser cette commande.", ephemeral=True)
             return
 
-        # Répondre à l'interaction
         await interaction.response.send_message("Redémarrage du bot...\n"
                                             "Attendre le message de démarrage avant toute chose !", ephemeral=True)
 
-        # Utilisez un autre moyen pour attendre un peu avant de fermer le bot
-        await asyncio.sleep(1)  # Donne un peu de temps pour que le message soit envoyé
+        await asyncio.sleep(1)
 
-        # Quitte le bot
         subprocess.Popen([sys.executable, *sys.argv])
         await Bot.close()
 
@@ -150,7 +147,7 @@ async def restart(interaction: discord.Interaction):
 
         print(f"Crash report:\n{error_traceback}")
 
-@Bot.tree.command(name="stop", description="arrête complètement le bot")
+@Bot.tree.command(name="stop", description="arrête complètement le bot (admin only)")
 async def stop(interaction):
     try:
         if interaction.user.id != ALLOWED_USER_ID:
