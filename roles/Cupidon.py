@@ -1,5 +1,7 @@
 import discord
+import asyncio
 from discord.ext import commands
+from discord.ui import View, Select
 from Database.databasehandler import DatabaseHandler
 from distribution import SP
 import classNotLoop
@@ -16,48 +18,80 @@ async def Cupidon(interaction, Bot):
     allowed_player = DatabaseHandler.name_for_role(f"Cupidon {SP.Cupidon}")
     userid = int(DatabaseHandler.discordID_for_name(allowed_player))
     user = await Bot.fetch_user(userid)
-    msg = discord.Embed(title="Qui veut tu toucher de tes flèches afin de les liés à jamais ?", colour=0x00FF00)
-    msg.add_field(name=f"",value=f"Envoie les numéros des joueurs que tu veux toucher de ta flèche")
-    await user.send(embed=msg)
+    player_list = DatabaseHandler.alive_player_list()
+    first_choice = asyncio.Event()
+    second_choice = asyncio.Event()
 
-    def check(message):
-        return message.author == user and isinstance(message.channel, discord.DMChannel)
+    first_msg = discord.Embed(
+        title="Qui veut tu toucher de tes flèches afin de les lier à jamais ?",
+        colour=0x00FF00
+    )
+    first_msg.add_field(
+        name="Première cible",
+        value = "Qui veut tu toucher de ta première flèche ?"
+    )
+    first_msg.add_field(
+        name="info",
+        value="Vote pour une cible en la choisissant dans la liste déroulante."
+    )
+    options = [discord.SelectOption(label=value) for value in player_list]
+    first_select = Select(placeholder="Choisis le premier amoureux", options=options)
 
-    i = 0
-    while i != 2:
-        chosen_one = await Bot.wait_for('message', check=check)
-        if DatabaseHandler.no_number(chosen_one.content):
-            voted_player.Cupi_touched.append(chosen_one.content)
-            print("No number")
-            print(voted_player.Cupi_touched)
-            if i == 1:
-                print("not added 1st")
-                print(voted_player.Cupi_touched)
-                if voted_player.Cupi_touched[0] == voted_player.Cupi_touched[1]:
-                    del voted_player.Cupi_touched[1]
-                    msg = discord.Embed(title=f"Tu à déjà choisi ce joueur", colour=0xFF0000)
-                    await user.send(embed=msg)
-                    i = 1
-                else:
-                    print("added 2nd")
-                    print(voted_player.Cupi_touched)
-                    i += 1
-                    DatabaseHandler.add_couple(chosen_one.content)
-            else:
-                print("added 1st")
-                print(voted_player.Cupi_touched)
-                i += 1
-                DatabaseHandler.add_couple(chosen_one.content)
-        else:
-            print("inexistant")
-            print(voted_player.Cupi_touched)
-            msg = discord.Embed(title="Ce joueur n'éxiste pas !", colour=0xFF0000)
-            msg.add_field(name="",value=f"Utilise **/liste_des_joueurs** pour connaitre la liste des joueurs et leurs numéros")
-            await user.send(embed=msg)
+    async def first_select_callback(interaction):
+        confirmation_msg = discord.Embed(
+            title=f"Le premier amoureux est {first_select.values[0]}",
+            colour=0xFD6C9E
+        )
 
-    msg = discord.Embed(title="Les deux amoureux ont été touchés par tes flèches !", colour=0xFD6C9E)
+        await interaction.response.send_message(embed=confirmation_msg)
+        voted_player.Cupi_touched.append(first_select.values[0])
+        first_choice.set()
+
+    first_select.callback = first_select_callback
+    view = View()
+    view.add_item(first_select)
+    await user.send(embed=first_msg, view=view)
+    await first_choice.wait()
+
+    player_list.remove(voted_player.Cupi_touched[0])
+
+    second_msg = discord.Embed(
+        title="Qui veut tu toucher de tes flèches afin de les lier à jamais ?",
+        colour=0x00FF00
+    )
+    second_msg.add_field(
+        name="Deuxième cible",
+        value="Qui veut tu toucher de ta deuxième flèche ?"
+    )
+    second_msg.add_field(
+        name="info",
+        value="Vote pour une cible en la choisissant dans la liste déroulante."
+    )
+
+    options = [discord.SelectOption(label=label) for label in player_list]
+    second_select = Select(placeholder="Choisis le deuxième amoureux", options=options)
+
+    async def second_select_callback(interaction):
+        confirmation_msg = discord.Embed(
+            title=f"Le deuxième amoureux est {second_select.values[0]}",
+            colour=0xFD6C9E
+        )
+        confirmation_msg.add_field(
+            name="Le couple est formé !",
+            value=f"Tu viens de lier à jamais {voted_player.Cupi_touched[0]} et {second_select.values[0]} :heart: \n"
+                  f"Si l'un des deux meurt, l'autre le rejoindra dans la mort."
+        )
+        await interaction.response.send_message(embed=confirmation_msg)
+        voted_player.Cupi_touched.append(second_select.values[0])
+        second_choice.set()
+
+    second_select.callback = second_select_callback
+    view = View()
+    view.add_item(second_select)
+    await user.send(embed=second_msg, view=view)
+    await second_choice.wait()
+    for lover in voted_player.Cupi_touched:
+        DatabaseHandler.add_couple(DatabaseHandler.number_for_name(lover))
+
     print(voted_player.Cupi_touched)
-    msg.add_field(name=f"{DatabaseHandler.name_for_number(voted_player.Cupi_touched[0])}", value="")
-    msg.add_field(name=f"{DatabaseHandler.name_for_number(voted_player.Cupi_touched[1])}", value="")
-    await user.send(embed=msg)
     classNotLoop.one_time_role.Cupidon_played = True

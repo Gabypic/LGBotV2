@@ -1,11 +1,8 @@
-from cProfile import label
-
 import discord
 from discord.ext import commands
 from discord.ui import Select, View
 from Database.databasehandler import DatabaseHandler
 from distribution import SP
-from checks import check_slash_wait
 import asyncio
 
 DatabaseHandler = DatabaseHandler("database.db")
@@ -114,4 +111,3 @@ def usable_potions(died):
         options.append(discord.SelectOption(label="Ne rien faire"))
 
     return options
-
