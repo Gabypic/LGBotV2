@@ -1,8 +1,12 @@
+from cProfile import label
+
 import discord
 from discord.ext import commands
+from discord.ui import Select, View
 from Database.databasehandler import DatabaseHandler
 from distribution import SP
 from checks import check_slash_wait
+import asyncio
 
 DatabaseHandler = DatabaseHandler("database.db")
 Bot = commands.Bot
@@ -16,84 +20,98 @@ async def Sorciere(interaction, Bot, died: int):
     allowed_player = DatabaseHandler.name_for_role(f"Sorciere {SP.Sorciere}")
     userid = int(DatabaseHandler.discordID_for_name(allowed_player))
     user = await Bot.fetch_user(userid)
-
-    def check_private_message(message):
-        return message.author == user and isinstance(message.channel, discord.DMChannel)
+    potion_choice = []
+    potion_choice_callback = asyncio.Event()
 
     if died == 0:
-        died_one = "personne n'" #quasi impossible mais au cas ou (ligne 35)
+        died_one = "personne n'"  # quasi impossible mais au cas ou (ligne 41)
     else:
         died_one = DatabaseHandler.name_for_number(str(died))
 
-    if not sorciere_var.heal and not sorciere_var.kill and int(died) > 0:
-        msg = discord.Embed(title=f"{died_one} est mort cette nuit!", colour=0xFF8700)
-        msg.add_field(name="1", value=f"Tu peux le sauver !")
-        msg.add_field(name="2", value=f"Tuer quelqu'un d'autre !")
-        msg.add_field(name="3", value="Ou bien ne rien faire.")
-        await user.send(embed=msg)
+    msg = discord.Embed(title=f"{died_one} est mort cette nuit", colour=0xFF8700)
+    potion_options = usable_potions(died)
+    potion_select = Select(placeholder="Choisis ton action", options=potion_options)
 
-    if not sorciere_var.heal and sorciere_var.kill and died > 1:
-        msg = discord.Embed(title=f"{died_one} est mort cette nuit!", colour=0xFF8700)
-        msg.add_field(name="1", value=f"Tu peux le sauver !")
-        msg.add_field(name="3", value="Ou bien ne rien faire.")
-        await user.send(embed=msg)
+    async def select_potion_callback(interaction):
+        confirmation_msg = discord.Embed(
+            title=f"{potion_select.values[0]}", colour=0xFF0000
+        )
+        await interaction.response.send_message(embed=confirmation_msg)
+        potion_choice.append(potion_select.values[0])
+        potion_choice_callback.set()
 
-    if sorciere_var.heal or died == 0 and not sorciere_var.kill:
-        msg = discord.Embed(title=f"{died_one} est mort cette nuit!", colour=0xFF8700)
-        msg.add_field(name="2", value=f"Tu peux tuer quelqu'un d'autre !")
-        msg.add_field(name="3", value="Ou bien ne rien faire.")
-        await user.send(embed=msg)
+    potion_select.callback = select_potion_callback
+    view = View()
+    view.add_item(potion_select)
+    await user.send(embed=msg, view=view)
+    await potion_choice_callback.wait()
+    chosen_potion = potion_choice[0]
 
-    if (sorciere_var.heal and sorciere_var.kill) or (died == 0 and sorciere_var.kill):
-        msg = discord.Embed(title=f"{died_one} est mort cette nuit!", colour=0xFF8700)
-        msg.add_field(name="Tu n'a plus de potions", value=f"Tu as utilisé toutes tes potions !")
-        await user.send(embed=msg)
-        return 0
-
-    potion_choice = await Bot.wait_for('message', check=check_private_message)
-    potion_use = int(potion_choice.content)
-
-    if potion_use == 1 and not sorciere_var.heal and int(died) > 0:
+    if used_potion(chosen_potion) == 1:
         msg = discord.Embed(title=f"Tu as sauvé {died_one}", colour=0x00FF00)
         await user.send(embed=msg)
         sorciere_var.heal = True
         return 0
 
-    if potion_use == 1 and sorciere_var.heal and int(died) > 0:
-        msg = discord.Embed(title=f"Tu à déjà utilisé ta potion de vie !", colour=0xFF0000)
-        await user.send(embed=msg)
-        await Sorciere(interaction, Bot, died)
-
-    if potion_use == 1 and not sorciere_var.heal and died ==0:
-        msg = discord.Embed(title=f"Action impossible !", colour=0xFF0000)
-        msg.add_field(name="Tu ne peux pas utiliser ta potion si personne n'est mort.", value="")
-
-    if potion_use == 2 and not sorciere_var.kill:
-        msg = discord.Embed(title=f"Qui veut tu éliminer ?", colour=0xFF0000)
-        msg.add_field(name=f"Information", value=f"/liste_des_joueurs pour voir la liste des joueurs et leur numéro")
-        await user.send(embed=msg)
-        check = False
-
-        while not check:
-            kill = await Bot.wait_for('message', check=check_private_message)
-            check = check_slash_wait(kill)
-
-        msg = discord.Embed(title=f"Tu à décidé de tuer {DatabaseHandler.name_for_number(kill.content)} ! ", colour=0x000000)
-        await user.send(embed=msg)
-        sorciere_var.kill = True
-        return kill.content
-
-    if potion_use == 2 and sorciere_var.kill:
-        msg = discord.Embed(title=f"Tu as déjà utilisé ta potion de mort !", colour=0xFF0000)
-        await user.send(embed=msg)
-        await Sorciere(interaction, Bot, died)
-
-    if potion_use == 3:
+    if used_potion(chosen_potion) == 0:
         msg = discord.Embed(title=f"Tu as décidé de ne rien faire cette nuit.", colour=0x0000FF)
         await user.send(embed=msg)
 
-    if potion_use <=0 or potion_use > 3:
-        msg = discord.Embed(title="Tu ne peux choisir qu'entre 1, 2 et 3 !", colour=0xFF0000)
-        await user.send(embed=msg)
-        await Sorciere(interaction, Bot, died)
-        
+    if used_potion(chosen_potion) == 2:
+        player_list = DatabaseHandler.alive_player_list()
+        kill_choice = []
+        kill_choice_callback = asyncio.Event()
+        msg = discord.Embed(title=f"Qui veut tu éliminer ?", colour=0xFF0000)
+
+        kill_options = [discord.SelectOption(label=value) for value in player_list]
+        kill_select = Select(placeholder="Choisis un joueur", options=kill_options)
+
+        async def select_kill_callback(interaction):
+            confirmation_msg = discord.Embed(
+                title=f"Tu as décider de tuer {kill_select.values[0]}", colour=0xFF0000
+            )
+            await interaction.response.send_message(embed=confirmation_msg)
+            kill_choice.append(kill_select.values[0])
+            kill_choice_callback.set()
+
+        kill_select.callback = select_kill_callback
+        view = View()
+        view.add_item(kill_select)
+        await user.send(embed=msg, view=view)
+
+        await kill_choice_callback.wait()
+
+        return DatabaseHandler.number_for_name(kill_select.values[0])
+
+
+
+def used_potion(potion):
+    if potion == "Tu peux le sauver":
+        return 1
+    if potion == "Tuer quelqu'un d'autre":
+        return 2
+    if potion == "Ne rien faire":
+        return 0
+
+
+def usable_potions(died):
+    options = []
+
+    if not sorciere_var.heal and not sorciere_var.kill and int(died) > 0:
+        options.append(discord.SelectOption(label="Tu peux le sauver"))
+        options.append(discord.SelectOption(label="Tuer quelqu'un d'autre"))
+        options.append(discord.SelectOption(label="Ne rien faire"))
+
+    elif not sorciere_var.heal and sorciere_var.kill and int(died) > 0:
+        options.append(discord.SelectOption(label="Tu peux le sauver"))
+        options.append(discord.SelectOption(label="Ne rien faire"))
+
+    elif sorciere_var.heal and not sorciere_var.kill:
+        options.append(discord.SelectOption(label="Tuer quelqu'un d'autre"))
+        options.append(discord.SelectOption(label="Ne rien faire"))
+
+    elif sorciere_var.heal and sorciere_var.kill:
+        options.append(discord.SelectOption(label="Ne rien faire"))
+
+    return options
+

@@ -18,7 +18,7 @@ async def Voyante(interaction, Bot):
     chose = asyncio.Event()
 
     msg = discord.Embed(
-        title=f"Quelle joueur veux-tu observer cette nuit ?",
+        title=f"Quel joueur veux-tu observer cette nuit ?",
         colour=0xA71DE1
     )
     msg.add_field(
