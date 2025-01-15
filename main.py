@@ -28,7 +28,7 @@ DatabaseHandler = DatabaseHandler("database.db")
 intents = discord.Intents.all()
 Bot = commands.Bot(command_prefix="!", description="Go pour les LGs", intents=intents)
 discord.AllowedMentions(everyone=True, users=True, roles=True, replied_user=True)
-version = "Alpha 0.9"
+version = "Alpha 0.9.5"
 
 ALLOWED_USER_ID = 431481311308546048
 restart_flag = False
