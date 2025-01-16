@@ -2,3 +2,5 @@ Possible multiple morts (un joueur peut se faire tuer plusieurs fois)
 Affichage de tous les joueurs (morts ou vifs dans le menu déroulant des votes)
 /inscriptions utilisable en mp rendant le followup non viable
 Les events de la sorcière fonctionnent, mais donnent l'erreur "Echec de l'interraction"
+Les loups-garous peuvent voter la nuit même après leur mort
+Lors du vote du jour, les messages de votes ne sont pas envoyés dans le général, et le message de mort du joueur n'est pas envoyé non plus
