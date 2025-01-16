@@ -13,6 +13,7 @@ import discord
 from discord import Interaction, app_commands
 from discord.ext import commands
 
+import Bot_token
 import play
 import setup
 import registration
@@ -171,4 +172,4 @@ async def stop(interaction):
 
         print(f"Crash report:\n{error_traceback}")
 
-Bot.run("MTA0MjkxMjk4Njc3MzMyNzkyMw.GhkAnU.4mQRT_wRgA_Go0ygpETT7zdqHc4haXG1KgCNVY")
+Bot.run(Bot_token.token.token)
