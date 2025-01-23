@@ -2,8 +2,8 @@
 # LG_BotV2          #
 # Version Alpha 0.9 #
 # Créé : 03/10/2023 #
-# Par : Gabychouuu_ #
-# maj : 13/08/2024  #
+# Par : Gabriel Pic #
+# maj : 16/01/2025  #
 #####################
 import asyncio
 from idlelib.colorizer import color_config

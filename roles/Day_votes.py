@@ -16,7 +16,8 @@ async def votes(interaction, Bot):
     players = []
     player_list = DatabaseHandler.alive_player_list()
     votes = []
-    has_vote = {"count": 0}
+    vote_counter = {"count": 0}
+    has_vote = []
     all_voted = asyncio.Event()
     votes_complete = False
 
@@ -48,7 +49,15 @@ async def votes(interaction, Bot):
             select = Select(placeholder="Choisis un joueur !", options=options)
 
             async def select_callback(interaction):
-                has_vote["count"] += 1
+                if player in has_vote:
+                    already_voted_msg = discord.Embed(
+                        title="Tu ne peut pas voter plusieurs fois !",
+                        colour=0xFF0000
+                    )
+                    await interaction.followup.send(embed=already_voted_msg)
+                    return
+                vote_counter["count"] += 1
+                has_vote.append(player)
                 confirmation_msg = discord.Embed(
                     title=f"Tu as voté pour {select.values[0]}:",
                     colour=0x00FF00
@@ -60,7 +69,7 @@ async def votes(interaction, Bot):
                     colour=discord.Colour.purple()
                 )
                 original_interaction.followup.send(embed=general_msg)
-                if has_vote["count"] >= total_player:
+                if vote_counter["count"] >= total_player:
                     all_voted.set()
 
             select.callback = select_callback
