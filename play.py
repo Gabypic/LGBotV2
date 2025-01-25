@@ -87,7 +87,7 @@ async def start(interaction, bot):
             if Soso_kill != 0 and ST.variables_setup.nb_lg > 0:
                 kill = 2
                 killed.append(Soso_kill)
-            elif Soso_kill !=0 and ST.variables_setup.nb_lg <= 0:
+            elif Soso_kill != 0 and ST.variables_setup.nb_lg <= 0:
                 kill = 1
                 killed.append(Soso_kill)
             else :

@@ -23,8 +23,9 @@ async def votes(interaction, Bot):
 
     for player in player_list:
         userid = int(DatabaseHandler.discordID_for_name(player))
-        user = await Bot.fetch_user(userid)
-        players.append(user)
+        if DatabaseHandler.is_alive(userid):
+            user = await Bot.fetch_user(userid)
+            players.append(user)
 
     total_player = len(players)
 

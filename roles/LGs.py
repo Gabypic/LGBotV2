@@ -19,8 +19,9 @@ async def LGs(interaction, Bot):
 
     for value in Lg_list:
         userid = int(DatabaseHandler.discordID_for_name(value))
-        user = await Bot.fetch_user(userid)
-        users.append(user)
+        if DatabaseHandler.is_alive(userid):
+            user = await Bot.fetch_user(userid)
+            users.append(user)
 
     total_users = len(users)
 

@@ -86,6 +86,10 @@ async def Distribution(interaction):
 
 async def me(interaction, name : str):
     role = DatabaseHandler.role_for_name(str(name))
+    if role == "0":
+        msg = discord.Embed(title="La distribution des rôles n'a pas été faite, tu ne peut donc pas voir ton rôle !",
+                            colour=0xFF0000)
+        await interaction.response.send_message(embed=msg, ephemeral=True)
     if role == f"Loup-Garou {SP.LG}":
         msg = discord.Embed(title="Role", colour=0xFF0000)
         msg.add_field(name="Ton rôle est :", value=f"{role}")

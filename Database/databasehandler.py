@@ -34,7 +34,10 @@ class DatabaseHandler():
         cursor.execute(query, (name, ))
         result = cursor.fetchall()
         cursor.close()
-        return dict(result[0])["role"]
+        try :
+            return dict(result[0])["role"]
+        except:
+            return "0"
 
     def name_for_role(self, role : str) -> str:
         cursor = self.connect.cursor()
