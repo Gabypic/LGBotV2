@@ -116,8 +116,7 @@ async def start(interaction, bot):
             continue
 
         msg = discord.Embed(title="Il est l'heure de passer aux votes !", colour=0x00FF00)
-        msg.add_field(name="Votez par le numéro du joueur", value="/liste_des_joueurs")
-        msg.add_field(name="Tout message comprenant autre chose qu'un numéro ne sera pas compté", value="Vous disposez de 3min pour voter !")
+        msg.add_field(name="Message privé", value="vous avez reçu un message privé dans lequel vous pouvez voter !")
         await interaction.followup.send(embed=msg, ephemeral=False)
 
         voted = await DV.votes(interaction, bot)

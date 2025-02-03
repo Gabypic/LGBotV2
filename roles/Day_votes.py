@@ -49,7 +49,11 @@ async def votes(interaction, Bot):
             options = [discord.SelectOption(label=value) for value in player_list]
             select = Select(placeholder="Choisis un joueur !", options=options)
 
-            async def select_callback(interaction):
+            async def select_callback(interaction, select=select, player=player):
+                if not select.values:
+                    await interaction.response.send_message("Aucune option sélectionnée, veuillez réessayer.",
+                                                            ephemeral=True)
+                    return
                 if player in has_vote:
                     already_voted_msg = discord.Embed(
                         title="Tu ne peut pas voter plusieurs fois !",
@@ -69,7 +73,7 @@ async def votes(interaction, Bot):
                     title=f"{player} à voté pour {select.values[0]}",
                     colour=discord.Colour.purple()
                 )
-                original_interaction.followup.send(embed=general_msg)
+                await original_interaction.followup.send(embed=general_msg)
                 if vote_counter["count"] >= total_player:
                     all_voted.set()
 
