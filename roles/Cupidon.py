@@ -28,7 +28,7 @@ async def Cupidon(interaction, Bot):
     )
     first_msg.add_field(
         name="Première cible",
-        value = "Qui veut tu toucher de ta première flèche ?"
+        value="Qui veut tu toucher de ta première flèche ?"
     )
     first_msg.add_field(
         name="info",

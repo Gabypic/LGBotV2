@@ -117,7 +117,6 @@ class DatabaseHandler():
         cursor.execute(query, (number, ))
         result = cursor.fetchall()
         cursor.close()
-        print(f"result: {result}")
         return dict(result[0])["name"]
 
     def number_for_name(self, name : str) -> str:
@@ -168,3 +167,19 @@ class DatabaseHandler():
         result = cursor.fetchall()
         cursor.close()
         return dict(result[0])['vie']
+
+    def is_couple(self, number : str) -> bool:
+        cursor = self.connect.cursor()
+        query = f"SELECT couple FROM Roles WHERE Numero = ?;"
+        cursor.execute(query, (number, ))
+        result = cursor.fetchall()
+        cursor.close()
+        return len(result) > 0
+
+    def get_couple(self):
+        cursor = self.connect.cursor()
+        query = f"SELECT couple, name FROM Roles WHERE couple > ?;"
+        cursor.execute(query, (0, ))
+        result = cursor.fetchall()
+        cursor.close()
+        return dict(result)

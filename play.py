@@ -55,7 +55,7 @@ async def start(interaction, bot):
         is_alive.Chasseur = False
 
     msg = discord.Embed(title=f"Début de la partie !", colour=0x00FF00)
-    await interaction.response.send_message(embed = msg)
+    await interaction.response.send_message(embed=msg)
     while not win_condition.Win_couple and not win_condition.Win_Village and not win_condition.Win_loups:
 
         if ST.variables_setup.Cupidon and is_alive.Cupidon:
@@ -98,7 +98,7 @@ async def start(interaction, bot):
         print(f"kill {kill}")
         for i in range(kill):
             print(f"do_kill/ {killed[i]}")
-            await do_kill(interaction, bot, killed[i], False, False)
+            await do_kill(interaction, bot, killed[i], False, False, False)
 
         if not is_alive.Chasseur and ST.variables_setup.Chasseur:
             if not classNotLoop.one_time_role.chasseur_played:
@@ -106,7 +106,7 @@ async def start(interaction, bot):
                 msg = discord.Embed(title="Comme le chasseur est mort, il peut emporter quelqu'un dans la tombe", colour=0x95D72A)
                 await interaction.followup.send(embed=msg)
                 chase_kill = await CH.Chasseur(interaction, bot)
-                await do_kill(interaction, bot, chase_kill, True, False)
+                await do_kill(interaction, bot, chase_kill, True, False, False)
 
         msg = discord.Embed(title="Le jour se lève !", colour=0x00FF00)
         await interaction.followup.send(embed=msg, ephemeral=False)
@@ -124,17 +124,19 @@ async def start(interaction, bot):
 
         msg = discord.Embed(title="Les votes sont faits", colour=0x00FF00)
         msg.add_field(name="Le joueur qui va être éliminé est :", value=f"{DatabaseHandler.name_for_number(voted)}")
-        await do_kill(interaction, bot, voted, False, True)
+        await do_kill(interaction, bot, voted, False, True, False)
 
         await check_win_conditions(interaction)
 
 
-async def do_kill(interaction, Bot, number, chase, day):
+async def do_kill(interaction, Bot, number, chase, day, couple):
     infos = DatabaseHandler.death_info(number)
     if chase:
         kill_msg = "à été tué par le chasseur"
     elif day:
         kill_msg = "est le joueur le plus voté, il a donc été pendu"
+    elif couple:
+        kill_msg = "à décider de rejoindre son amoureux dans la tombe"
     else:
         kill_msg = "est mort cette nuit"
     for key, value in infos.items():
@@ -155,7 +157,14 @@ async def do_kill(interaction, Bot, number, chase, day):
             ST.variables_setup.nb_lg -= 1
         if value == f"Villageois {SP.Villageois}":
             print("enter villager -1")
-            ST.variables_setup.nb_villageois -=1
+            ST.variables_setup.nb_villageois -= 1
+        if DatabaseHandler.is_couple(number):
+            lovers = DatabaseHandler.get_couple()
+            for key_couple, value_couple in lovers.items():
+                print(value_couple)
+                if DatabaseHandler.is_alive(int(DatabaseHandler.discordID_for_name(value_couple))):
+                    await do_kill(interaction, Bot, DatabaseHandler.number_for_name(value_couple),
+                                  False, False, True)
 
 
 async def check_win_conditions(interaction):
