@@ -8,6 +8,7 @@ import roles.Sorciere as SC
 import roles.Day_votes as DV
 from Database.databasehandler import DatabaseHandler
 from distribution import SP
+from distribution import variables_distribution as VD
 import setup as ST
 import classNotLoop
 
@@ -40,10 +41,10 @@ async def number_player_list(interaction):
 
 
 async def start(interaction, bot):
-    #if not VD.did_distribution:
-       #msg = discord.Embed(title=f"Erreur, la distribution n'est pas faite !", colour=0xFF0000)
-       #await interaction.response.send_message(embed=msg)
-       #return
+    if not VD.did_distribution:
+       msg = discord.Embed(title=f"Erreur, la distribution n'est pas faite !", colour=0xFF0000)
+       await interaction.response.send_message(embed=msg)
+       return
 
     if not ST.variables_setup.Cupidon:
         is_alive.Cupidon = False

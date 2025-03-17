@@ -29,7 +29,7 @@ async def Start_Inscriptions(interaction, name, user_id, database):
         await interaction.response.send_message(embed=msg)
 
 async def Inscription(interaction, name, user_id):
-    if variables_registration.start == True and variables_setup.game_setup == True and not DatabaseHandler.no_player(name) and variables_registration.nb_joueur != 0:
+    if variables_registration.start and variables_setup.game_setup and not DatabaseHandler.no_player(name) and variables_registration.nb_joueur != 0:
         variables_registration.nb_joueur -= 1
         msg = discord.Embed(title="Joueur inscrit !", colour=0x0000FF)
 
